@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.weibo.mapper.UserMapper">
+        <insert id="addUser" parameterType="com.example.weibo.pojo.User">
+                insert into user(u_id,u_name,u_link,u_follow,u_fans_num) values (#{uId},#{uName},#{uLink},#{uFollow},#{uFansNumber})
+        </insert>
+        <select id="selectUser" parameterType="com.example.weibo.pojo.User" resultType="String">
+                select u_id from user where u_id = #{uId}
+        </select>
+        <select id="queryAll" resultType="String">
+                select u_id from user
+        </select>
+        <select id="queryCountId" resultType="int">
+                select count(u_id) from user
+        </select>
+        <select id="queryUserLink" resultType="String">
+                select u_link from user
+        </select>
+        <insert id="addContent" parameterType="com.example.weibo.pojo.WeiboContentInfo">
+                insert into content(u_id,u_name,release_time,content_text,forward_num,comment_num,like_num) values (#{uId},#{uName},#{releaseTime},#{contentText},#{forwardNum},#{commentNum},#{likeNum})
+        </insert>
+
+        <resultMap id="contentMap" type="com.example.weibo.pojo.WeiboContentInfo">
+                <id column="id" property="id"></id>
+                <result column="content_text" property="contentText"></result>
+        </resultMap>
+        <select id="queryUserText" resultMap="contentMap">
+                select id,content_text from content_view
+        </select>
+        <select id="queryCountIdFromView" resultType="int">
+                select count(id) from content_view
+        </select>
+        <update id="insertKeywords" parameterType="com.example.weibo.pojo.WeiboContentInfo">
+                UPDATE content_view SET keywords_list = #{keywordsList} where id = #{id}
+        </update>
+
+        <resultMap id="keywordsContentMap" type="com.example.weibo.pojo.WeiboContentInfo">
+                <id column="id" property="id"></id>
+                <result column="content_text" property="contentText"></result>
+        </resultMap>
+        <select id="queryByKeyword" resultMap="keywordsContentMap" parameterType="com.example.weibo.pojo.WeiboContentInfo">
+                select id,content_text from content_view where keywords_list like "%"#{keywordsList}"%"
+        </select>
+
+        <resultMap id="topicAboutMap" type="com.example.weibo.pojo.TopicAbout">
+                <result column="forward_num" property="forwardNumber"></result>
+                <result column="comment_num" property="commentNumber"></result>
+                <result column="u_fans_num" property="fansNumber"></result>
+        </resultMap>
+        <select id="queryTopicAbout" parameterType="com.example.weibo.pojo.TopicAbout" resultMap="topicAboutMap">
+                SELECT forward_num,comment_num,u_fans_num from user join content_view on `user`.u_id = content_view.u_id WHERE content_view.id = #{id}
+        </select>
+</mapper>
